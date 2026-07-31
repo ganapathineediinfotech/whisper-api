@@ -7,7 +7,7 @@ app = FastAPI()
 
 print("Loading Whisper model...")
 
-model = whisper.load_model("medium")
+model = whisper.load_model("tiny")
 
 print("Model Loaded")
 
