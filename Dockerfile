@@ -1,45 +1,22 @@
-FROM ubuntu:24.04
+FROM python:3.11-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
-    git \
-    wget \
     ffmpeg \
-    curl \
-    build-essential \
-    cmake \
-    nodejs \
-    npm && \
-    rm -rf /var/lib/apt/lists/*
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Clone Whisper.cpp
-RUN git clone https://github.com/ggml-org/whisper.cpp.git
+COPY requirements.txt .
 
-# Build Whisper.cpp (disable CPU-specific optimizations)
-RUN cd whisper.cpp && \
-    cmake -B build \
-      -DGGML_NATIVE=OFF \
-      -DGGML_AVX=OFF \
-      -DGGML_AVX2=OFF \
-      -DGGML_FMA=OFF \
-      -DGGML_F16C=OFF && \
-    cmake --build build -j$(nproc)
-
-# Download multilingual model
-RUN cd whisper.cpp && \
-    bash models/download-ggml-model.sh medium
-
-COPY package*.json ./
-
-RUN npm install
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
 RUN mkdir -p uploads
 
-EXPOSE 3000
+ENV PORT=10000
 
-CMD ["node", "server.js"]
+CMD uvicorn server:app --host 0.0.0.0 --port $PORT
