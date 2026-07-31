@@ -5,7 +5,7 @@ import os
 
 app = FastAPI()
 
-print("Loading model...")
+print("Loading Whisper Tiny...")
 
 model = WhisperModel(
     "tiny",
@@ -13,37 +13,37 @@ model = WhisperModel(
     compute_type="int8"
 )
 
-print("Model loaded")
+print("Loaded!")
 
 @app.get("/")
 def home():
-    return {"status": "running"}
+    return {"status":"running"}
 
 @app.post("/transcribe")
 async def transcribe(audio: UploadFile = File(...)):
 
-    filepath = f"uploads/{audio.filename}"
+    filename = f"uploads/{audio.filename}"
 
-    with open(filepath, "wb") as f:
-        shutil.copyfileobj(audio.file, f)
+    with open(filename,"wb") as f:
+        shutil.copyfileobj(audio.file,f)
 
     segments, info = model.transcribe(
-        filepath,
+        filename,
         language="te"
     )
 
-    result = {
-        "language": info.language,
-        "segments": []
-    }
+    result=[]
 
-    for segment in segments:
-        result["segments"].append({
-            "start": segment.start,
-            "end": segment.end,
-            "text": segment.text
+    for s in segments:
+        result.append({
+            "start":s.start,
+            "end":s.end,
+            "text":s.text
         })
 
-    os.remove(filepath)
+    os.remove(filename)
 
-    return result
+    return {
+        "language":info.language,
+        "segments":result
+    }
