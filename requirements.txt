@@ -1,5 +1,6 @@
-fastapi
-uvicorn
-python-multipart
-openai-whisper
-torch
+fastapi==0.116.1
+uvicorn==0.35.0
+python-multipart==0.0.20
+faster-whisper==1.1.1
+ctranslate2==4.6.0
+av==15.1.0
